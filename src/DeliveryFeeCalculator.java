@@ -1,3 +1,7 @@
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.HashMap;
+
 public class DeliveryFeeCalculator {
     
     private static final double CAR_TALLINN_BASE_FEE = 4.0;
@@ -20,8 +24,15 @@ public class DeliveryFeeCalculator {
     private static final double SNOW_OR_SLEET_WEATHER_FEE = 1.0;
     private static final double RAIN_WEATHER_FEE = 0.5;
 
-    public double calculateDeliveryFee(String city, String deliveryVehicle, double windSpeed, double airTemperature, String weatherPhenomenon) {
+    public double calculateDeliveryFee(String city, String deliveryVehicle, LocalDate date) {
         double regionalBaseFee = calculateRegionalBaseFee(city, deliveryVehicle);
+
+        HashMap<String, Object> weatherData = getDataFromDatabase(city, date);
+
+        double airTemperature = (double) weatherData.get("airTemp");
+        double windSpeed = (double) weatherData.get("windSpeed");
+        String weatherPhenomenon = (String) weatherData.get("weatherPhenomenon");
+
         double extraFees = calculateExtraFees(deliveryVehicle, city, airTemperature, windSpeed, weatherPhenomenon);
         return regionalBaseFee + extraFees;
     }
@@ -96,5 +107,24 @@ public class DeliveryFeeCalculator {
         }
         
         return extraFees;
+    }
+
+    private HashMap<String, Object> getDataFromDatabase(String city, LocalDate date) {
+        
+        HashMap<String, Object> weatherData;
+
+        WeatherDataRetriever wRetriever = new WeatherDataRetriever();
+
+        try {
+            if (date == null) {
+                weatherData = wRetriever.getWeatherDataByCity(city);
+            } else {
+                weatherData = wRetriever.getWeatherDataByCityAndDate(city, date);
+            }
+        } catch (SQLException e) {
+            throw new IllegalArgumentException("Invalid city entered.");
+        } 
+
+        return weatherData;
     }
 }
