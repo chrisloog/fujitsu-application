@@ -1,3 +1,4 @@
+package main.java;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -12,9 +13,9 @@ public class DeliveryFeeCalculator {
     private static final double SCOOTER_TARTU_BASE_FEE = 3.0;
     private static final double BIKE_TARTU_BASE_FEE = 2.5;
 
-    private static final double CAR_PÄRNU_BASE_FEE = 3.0;
-    private static final double SCOOTER_PÄRNU_BASE_FEE = 2.5;
-    private static final double BIKE_PÄRNU_BASE_FEE = 2.0;
+    private static final double CAR_PARNU_BASE_FEE = 3.0;
+    private static final double SCOOTER_PARNU_BASE_FEE = 2.5;
+    private static final double BIKE_PARNU_BASE_FEE = 2.0;
 
     private static final double LESS_THAN_NEGATIVE_10C_TEMP_FEE = 1.0;
     private static final double BETWEEN_NEGATIVE_10C_AND_0C_TEMP_FEE = 0.5;
@@ -69,13 +70,13 @@ public class DeliveryFeeCalculator {
             case "Pärnu":
                 switch (deliveryVehicle) {
                     case "Car":
-                        regionalBaseFee = CAR_PÄRNU_BASE_FEE;
+                        regionalBaseFee = CAR_PARNU_BASE_FEE;
                         break;
                     case "Scooter":
-                        regionalBaseFee = SCOOTER_PÄRNU_BASE_FEE;
+                        regionalBaseFee = SCOOTER_PARNU_BASE_FEE;
                         break;
                     case "Bike":
-                        regionalBaseFee = BIKE_PÄRNU_BASE_FEE;
+                        regionalBaseFee = BIKE_PARNU_BASE_FEE;
                         break;
                 }
                 break;
@@ -110,7 +111,7 @@ public class DeliveryFeeCalculator {
     }
 
     private HashMap<String, Object> getDataFromDatabase(String city, LocalDate date) {
-        
+
         HashMap<String, Object> weatherData;
 
         WeatherDataRetriever wRetriever = new WeatherDataRetriever();

@@ -1,12 +1,13 @@
+package main.java;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.HashMap;
 
 public class WeatherDataRetriever {
 
-    private static final String DATABASE_URL = "jdbc:postgresql://localhost:5432/your-database-name";
-    private static final String USERNAME = "your-username";
-    private static final String PASSWORD = "your-password";
+    private static final String DATABASE_URL = "jdbc:postgresql://localhost:5080/fujitsuDB";
+    private static final String USERNAME = "postgres";
+    private static final String PASSWORD = "44UwqmttPC97";
 
     public HashMap<String, Object> getWeatherDataByCityAndDate(String city, LocalDate date) throws SQLException {
         Connection connection = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
