@@ -2,6 +2,7 @@ package main.java;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.sql.Timestamp;
 
 public class DeliveryFeeCalculator {
     
@@ -25,16 +26,16 @@ public class DeliveryFeeCalculator {
     private static final double SNOW_OR_SLEET_WEATHER_FEE = 1.0;
     private static final double RAIN_WEATHER_FEE = 0.5;
 
-    public double calculateDeliveryFee(String city, String deliveryVehicle, LocalDate date) {
+    public double calculateDeliveryFee(String city, String deliveryVehicle, Timestamp timestamp) {
         double regionalBaseFee = calculateRegionalBaseFee(city, deliveryVehicle);
 
-        HashMap<String, Object> weatherData = getDataFromDatabase(city, date);
+        HashMap<String, Object> weatherData = getDataFromDatabase(city, timestamp);
 
         double airTemperature = (double) weatherData.get("airTemp");
         double windSpeed = (double) weatherData.get("windSpeed");
         String weatherPhenomenon = (String) weatherData.get("weatherPhenomenon");
 
-        double extraFees = calculateExtraFees(deliveryVehicle, city, airTemperature, windSpeed, weatherPhenomenon);
+        double extraFees = calculateExtraFees(deliveryVehicle, airTemperature, windSpeed, weatherPhenomenon);
         return regionalBaseFee + extraFees;
     }
 
@@ -43,48 +44,30 @@ public class DeliveryFeeCalculator {
         switch (city) {
             case "Tallinn":
                 switch (deliveryVehicle) {
-                    case "Car":
-                        regionalBaseFee = CAR_TALLINN_BASE_FEE;
-                        break;
-                    case "Scooter":
-                        regionalBaseFee = SCOOTER_TALLINN_BASE_FEE;
-                        break;
-                    case "Bike":
-                        regionalBaseFee = BIKE_TALLINN_BASE_FEE;
-                        break;
+                    case "Car" -> regionalBaseFee = CAR_TALLINN_BASE_FEE;
+                    case "Scooter" -> regionalBaseFee = SCOOTER_TALLINN_BASE_FEE;
+                    case "Bike" -> regionalBaseFee = BIKE_TALLINN_BASE_FEE;
                 }
                 break;
             case "Tartu":
                 switch (deliveryVehicle) {
-                    case "Car":
-                        regionalBaseFee = CAR_TARTU_BASE_FEE;
-                        break;
-                    case "Scooter":
-                        regionalBaseFee = SCOOTER_TARTU_BASE_FEE;
-                        break;
-                    case "Bike":
-                        regionalBaseFee = BIKE_TARTU_BASE_FEE;
-                        break;
+                    case "Car" -> regionalBaseFee = CAR_TARTU_BASE_FEE;
+                    case "Scooter" -> regionalBaseFee = SCOOTER_TARTU_BASE_FEE;
+                    case "Bike" -> regionalBaseFee = BIKE_TARTU_BASE_FEE;
                 }
                 break;
             case "Pärnu":
                 switch (deliveryVehicle) {
-                    case "Car":
-                        regionalBaseFee = CAR_PARNU_BASE_FEE;
-                        break;
-                    case "Scooter":
-                        regionalBaseFee = SCOOTER_PARNU_BASE_FEE;
-                        break;
-                    case "Bike":
-                        regionalBaseFee = BIKE_PARNU_BASE_FEE;
-                        break;
+                    case "Car" -> regionalBaseFee = CAR_PARNU_BASE_FEE;
+                    case "Scooter" -> regionalBaseFee = SCOOTER_PARNU_BASE_FEE;
+                    case "Bike" -> regionalBaseFee = BIKE_PARNU_BASE_FEE;
                 }
                 break;
         }
         return regionalBaseFee;
     }
 
-    private double calculateExtraFees(String city, String deliveryVehicle, double windSpeed, double airTemperature, String weatherPhenomenon) {
+    private double calculateExtraFees(String deliveryVehicle, double windSpeed, double airTemperature, String weatherPhenomenon) {
         double extraFees = 0.0;
         
         if ((deliveryVehicle.equals("Scooter") || deliveryVehicle.equals("Bike")) && airTemperature < -10) {
@@ -110,17 +93,17 @@ public class DeliveryFeeCalculator {
         return extraFees;
     }
 
-    private HashMap<String, Object> getDataFromDatabase(String city, LocalDate date) {
+    private HashMap<String, Object> getDataFromDatabase(String city, Timestamp timestamp) {
 
         HashMap<String, Object> weatherData;
 
         WeatherDataRetriever wRetriever = new WeatherDataRetriever();
 
         try {
-            if (date == null) {
+            if (timestamp == null) {
                 weatherData = wRetriever.getWeatherDataByCity(city);
             } else {
-                weatherData = wRetriever.getWeatherDataByCityAndDate(city, date);
+                weatherData = wRetriever.getWeatherDataByCityAndDate(city, timestamp);
             }
         } catch (SQLException e) {
             throw new IllegalArgumentException("Invalid city entered.");
