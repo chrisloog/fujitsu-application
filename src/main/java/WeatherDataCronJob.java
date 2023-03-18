@@ -1,5 +1,11 @@
 package main.java;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
@@ -8,11 +14,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Timer;
 import java.util.TimerTask;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 public class WeatherDataCronJob {
     // Set default frequency to once every hour, 15 minutes after a full hour (HH:15:00)
@@ -41,7 +42,6 @@ public class WeatherDataCronJob {
         @Override
         public void run() {
             try {
-                // Connect to the database
                 Connection connection = DriverManager.getConnection(DATABASE_URL, DATABASE_USER, DATABASE_PASSWORD);
 
                 // Query the database for the weather stations of interest
@@ -49,12 +49,10 @@ public class WeatherDataCronJob {
                 stationQuery.execute();
                 var stationsResult = stationQuery.getResultSet();
 
-                // Loop over each weather station and insert the latest weather data into the database
                 while (stationsResult.next()) {
                     String stationName = stationsResult.getString("NAME");
                     String stationWmoCode = stationsResult.getString("WMOCODE");
 
-                    // Get the latest weather data for the station from the weather portal
                     URL url = new URL(WEATHER_DATA_URL);
                     Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(url.openStream());
                     doc.getDocumentElement().normalize();
@@ -76,14 +74,12 @@ public class WeatherDataCronJob {
                             var airTempNode = station.getChildNodes().item(9);
                             var windSpeedNode = station.getChildNodes().item(11);
                             var phenomenonNode = station.getChildNodes().item(7);
-                            // check if all required nodes exist for the station
                             if (airTempNode != null && windSpeedNode != null && phenomenonNode != null) {
-                                // extract data from nodes
+
                                 var airTemperature = Double.parseDouble(airTempNode.getTextContent());
                                 var windSpeed = Double.parseDouble(windSpeedNode.getTextContent());
                                 var weatherPhenomenon = phenomenonNode.getTextContent();
 
-                                // insert data into database
                                 insertWeatherData(stationId, airTemperature, windSpeed, weatherPhenomenon);
                             } else {
                                 System.out.println("Missing required data for station: " + stationName);
@@ -96,13 +92,6 @@ public class WeatherDataCronJob {
             }
         }
 
-        /**
-         * Inserts weather data into the database for the specified station.
-         * @param stationId The ID of the weather station.
-         * @param airTemperature The air temperature at the station.
-         * @param windSpeed The wind speed at the station.
-         * @param weatherPhenomenon The weather phenomenon at the station.
-         */
         private static void insertWeatherData(int stationId, double airTemperature, double windSpeed, String weatherPhenomenon) {
             try (var connection = DriverManager.getConnection(DATABASE_URL, DATABASE_USER, DATABASE_PASSWORD);
                  var statement = connection.prepareStatement(INSERT_WEATHER_AT_QUERY)) {
