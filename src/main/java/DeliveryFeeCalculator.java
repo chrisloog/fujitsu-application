@@ -1,8 +1,6 @@
 package main.java;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.HashMap;
-import java.sql.Timestamp;
 
 public class DeliveryFeeCalculator {
     
@@ -26,10 +24,10 @@ public class DeliveryFeeCalculator {
     private static final double SNOW_OR_SLEET_WEATHER_FEE = 1.0;
     private static final double RAIN_WEATHER_FEE = 0.5;
 
-    public double calculateDeliveryFee(String city, String deliveryVehicle, Timestamp timestamp) {
+    public double calculateDeliveryFee(String city, String deliveryVehicle) {
         double regionalBaseFee = calculateRegionalBaseFee(city, deliveryVehicle);
 
-        HashMap<String, Object> weatherData = getDataFromDatabase(city, timestamp);
+        HashMap<String, Object> weatherData = getDataFromDatabase(city);
 
         double airTemperature = (double) weatherData.get("airTemp");
         double windSpeed = (double) weatherData.get("windSpeed");
@@ -93,21 +91,16 @@ public class DeliveryFeeCalculator {
         return extraFees;
     }
 
-    private HashMap<String, Object> getDataFromDatabase(String city, Timestamp timestamp) {
-
+    private HashMap<String, Object> getDataFromDatabase(String city) {
         HashMap<String, Object> weatherData;
 
         WeatherDataRetriever wRetriever = new WeatherDataRetriever();
 
         try {
-            if (timestamp == null) {
-                weatherData = wRetriever.getWeatherDataByCity(city);
-            } else {
-                weatherData = wRetriever.getWeatherDataByCityAndDate(city, timestamp);
-            }
+            weatherData = wRetriever.getWeatherDataFromDatabase(city);
         } catch (SQLException e) {
             throw new IllegalArgumentException("Invalid city entered.");
-        } 
+        }
 
         return weatherData;
     }
