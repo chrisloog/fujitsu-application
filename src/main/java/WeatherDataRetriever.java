@@ -1,21 +1,19 @@
 package main.java;
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.HashMap;
 
 public class WeatherDataRetriever {
 
-    private static final String DATABASE_URL = "jdbc:postgresql://localhost:5080/fujitsuDB";
-    private static final String USERNAME = "postgres";
-    private static final String PASSWORD = "44UwqmttPC97";
+    private static final String DATABASE_URL = "jdbc:h2:~/fujitsuDB";
+    private static final String DATABASE_USER = "sa";
+    private static final String DATABASE_PASSWORD = "";
 
-    public HashMap<String, Object> getWeatherDataByCityAndDate(String city, LocalDate date) throws SQLException {
-        Connection connection = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
+    public HashMap<String, Object> getWeatherDataFromDatabase(String city) throws SQLException {
+        Connection connection = DriverManager.getConnection(DATABASE_URL, DATABASE_USER, DATABASE_PASSWORD);
 
-        String query = "SELECT airTemp, windSpeed, weatherPhenomenon FROM WEATHER_AT WHERE cityName = ? AND timeStamp::date = ?";
+        String query = "SELECT airTemp, windSpeed, weatherPhenomenon FROM WEATHER_AT WHERE cityName = ?";
         PreparedStatement statement = connection.prepareStatement(query);
         statement.setString(1, city);
-        statement.setObject(2, date != null ? date : LocalDate.now());
 
         ResultSet resultSet = statement.executeQuery();
 
@@ -29,9 +27,5 @@ public class WeatherDataRetriever {
         connection.close();
 
         return weatherData;
-    }
-
-    public HashMap<String, Object> getWeatherDataByCity(String city) throws SQLException {
-        return getWeatherDataByCityAndDate(city, null);
     }
 }
