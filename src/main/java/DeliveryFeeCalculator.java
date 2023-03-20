@@ -24,6 +24,16 @@ public class DeliveryFeeCalculator {
     private static final double SNOW_OR_SLEET_WEATHER_FEE = 1.0;
     private static final double RAIN_WEATHER_FEE = 0.5;
 
+    /**
+     * Calculates the delivery fee for a delivery based on the city and delivery vehicle type.
+     * The fee consists of a regional base fee and extra fees based on the weather conditions and delivery vehicle type.
+     *
+     * @param city              the city where the delivery is being made (Tallinn, Tartu or Pärnu).
+     * @param deliveryVehicle   the type of delivery vehicle (Car, Scooter or Bike).
+     * @return                  the total delivery fee, which is the sum of the regional base fee and extra fees.
+     * @throws IllegalArgumentException if an invalid city is entered or if the selected delivery vehicle is not allowed
+     * in the given weather conditions (for example, if the wind speed is too high or if there is hail or thunder).
+     */
     public double calculateDeliveryFee(String city, String deliveryVehicle) {
         double regionalBaseFee = calculateRegionalBaseFee(city, deliveryVehicle);
 
@@ -97,7 +107,7 @@ public class DeliveryFeeCalculator {
         WeatherDataRetriever wRetriever = new WeatherDataRetriever();
 
         try {
-            weatherData = wRetriever.getWeatherDataFromDatabase(city);
+            weatherData = wRetriever.getLatestWeatherDataFromDatabase(city);
         } catch (SQLException e) {
             throw new IllegalArgumentException("Invalid city entered.");
         }
