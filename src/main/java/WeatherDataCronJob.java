@@ -27,6 +27,14 @@ public class WeatherDataCronJob {
     private static final String WEATHER_STATIONS_QUERY = "SELECT * FROM WEATHER_STATION WHERE NAME IN ('Tallinn-Harku', 'Tartu-Tõravere', 'Pärnu')";
     private static final String INSERT_WEATHER_AT_QUERY = "INSERT INTO WEATHER_AT (WEATHER_STATION_ID, AIRTEMPERATURE, WINDSPEED, WEATHERPHENOMENON) VALUES (?, ?, ?, ?)";
 
+    /**
+     * This method is the entry point of the WeatherDataCronJob application.
+     * It sets the frequency and delay based on command line arguments, or uses default values.
+     * It then creates a timer to run the cron job on schedule.
+     *
+     * @param args Command line arguments that specify the frequency and delay of the cron job.
+     *             If not provided, default values will be used.
+     */
     public static void main(String[] args) {
         // Set the frequency and delay based on the command line arguments, or use default values
         long frequency = args.length >= 1 ? Long.parseLong(args[0]) : DEFAULT_FREQUENCY_MS;
@@ -80,6 +88,7 @@ public class WeatherDataCronJob {
                                 var weatherPhenomenon = phenomenonNode.getTextContent();
 
                                 insertWeatherData(stationId, airTemperature, windSpeed, weatherPhenomenon);
+                                System.out.println("Data inserted successfully!");
                             } else {
                                 System.out.println("Missing required data for station: " + stationName);
                             }

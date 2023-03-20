@@ -8,10 +8,16 @@ public class WeatherDataRetriever {
     private static final String DATABASE_USER = "sa";
     private static final String DATABASE_PASSWORD = "";
 
-    public HashMap<String, Object> getWeatherDataFromDatabase(String city) throws SQLException {
+    /**
+     * Retrieves the latest weather data for a given city from the database.
+     * @param city The name of the city for which to retrieve weather data.
+     * @return A HashMap containing the latest air temperature, wind speed, and weather phenomenon for the given city.
+     * @throws SQLException if there's an error executing the SQL query.
+     */
+    public HashMap<String, Object> getLatestWeatherDataFromDatabase(String city) throws SQLException {
         Connection connection = DriverManager.getConnection(DATABASE_URL, DATABASE_USER, DATABASE_PASSWORD);
 
-        String query = "SELECT airTemp, windSpeed, weatherPhenomenon FROM WEATHER_AT WHERE cityName = ?";
+        String query = "SELECT airTemp, windSpeed, weatherPhenomenon FROM WEATHER_AT WHERE cityName = ? ORDER BY DATE DESC LIMIT 1";
         PreparedStatement statement = connection.prepareStatement(query);
         statement.setString(1, city);
 
